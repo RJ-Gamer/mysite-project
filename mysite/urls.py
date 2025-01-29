@@ -20,10 +20,11 @@ from django.urls import path, include
 
 # API URL patterns
 api_patterns = [
-    path("auth/", include("users.urls")),
+    path("auth/", include("users.urls", namespace='users')),
+    path("admin/", include("admin_api.urls", namespace='admin_api')),  # Include admin API URLs
 ]
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/<str:version>/", include(api_patterns)),
+    path("api/v1/", include(api_patterns)),
 ]

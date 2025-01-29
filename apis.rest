@@ -3,8 +3,8 @@ POST http://localhost:8000/api/v1/auth/login/
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "password": "Test@123"
+  "email": "admin@yopmail.com",
+  "password": "dell@123"
 }
 
 ### Refresh Token ###   
@@ -62,3 +62,9 @@ Content-Type: application/json
   "password": "Test@123",
   "confirm_password": "Test@123"
 }
+
+### User List - Admin Only ###
+GET http://localhost:8000/api/v1/admin/users/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NzQ0NzI4LCJpYXQiOjE3MzgxMzk5MjgsImp0aSI6Ijk5YTkxYjc2NTU0MDRiZmNhOWNjMzUyYTYyMmI2Y2FkIiwidXNlcl9pZCI6ImQxMTY3MDY3LTUxMmEtNDEzYS04MGNiLTgwZDEzOTU2MjFlYiJ9.Y73eNCPJB8dLOMatL3XaRxLFwDxleGYvioz3_-KwLAY
+

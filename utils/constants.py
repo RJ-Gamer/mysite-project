@@ -26,6 +26,19 @@ PROFILE_UPDATE_SUCCESS = "Profile updated successfully"
 PROFILE_UPDATE_FAILED = "Failed to update profile"
 EMAIL_CHANGE_NOT_ALLOWED = "Email address cannot be changed"
 
+# User List Messages
+USER_LIST_RETRIEVED_SUCCESS = "User list retrieved successfully"
+FAILED_TO_RETRIEVE_USER_LIST = "Failed to retrieve user list"
+
+# User Retrieve Messages
+USER_RETRIEVE_SUCCESS = "User retrieved successfully"
+USER_RETRIEVE_FAILED = "Failed to retrieve user"
+
+# User Delete Messages
+USER_DELETED_SUCCESS = "User deleted successfully"
+USER_NOT_FOUND = "User not found"
+USER_DELETE_FAILED = "Failed to delete user"
+
 # Labels
 EMAIL_FIELD_LABEL = "Email address"
 

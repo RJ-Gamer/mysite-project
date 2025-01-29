@@ -25,8 +25,15 @@ from utils.constants import (
     REGISTRATION_FAILED,
     PROFILE_UPDATE_SUCCESS,
     PROFILE_UPDATE_FAILED,
+    USER_DELETED_SUCCESS,
+    USER_NOT_FOUND,
+    USER_DELETE_FAILED,
 )
-from .serializers import ChangePasswordSerializer, UserRegistrationSerializer, UserUpdateSerializer
+from .serializers import (
+    ChangePasswordSerializer,
+    UserRegistrationSerializer,
+    UserUpdateSerializer,
+)
 
 User = get_user_model()
 
@@ -180,7 +187,7 @@ class UserUpdateView(APIView):
                 request.user,
                 data=request.data,
                 partial=True,
-                context={"request": request}
+                context={"request": request},
             )
             if serializer.is_valid():
                 user = serializer.save()
@@ -201,6 +208,34 @@ class UserUpdateView(APIView):
         except Exception as e:
             return api_response(
                 message=PROFILE_UPDATE_FAILED,
+                error=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class UserDeleteView(APIView):
+    """Handle soft delete of a user account."""
+
+    permission_classes = (IsAuthenticated,)
+
+    def delete(self, request: Any, user_id: int) -> Response:
+        """Handle DELETE request for soft deleting a user."""
+        try:
+            user = request.user
+            user.is_active = False  # Soft delete by setting is_active to False
+            user.save()
+            return api_response(
+                message=USER_DELETED_SUCCESS,
+                status_code=status.HTTP_200_OK,
+            )
+        except User.DoesNotExist:
+            return api_response(
+                message=USER_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            return api_response(
+                message=USER_DELETE_FAILED,
                 error=str(e),
                 status_code=status.HTTP_400_BAD_REQUEST,
             )

@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from utils.api import api_response
-
-# Create your views here.
+from utils.constants import (
+    USER_RETRIEVE_SUCCESS,
+    USER_RETRIEVE_FAILED,
+)
 
 User = get_user_model()
 
@@ -22,13 +23,13 @@ class UserListView(APIView):
                 "id", "email", "first_name", "last_name"
             )
             return api_response(
-                message="User list retrieved successfully",
+                message=USER_RETRIEVE_SUCCESS,
                 data=list(users),
                 status_code=status.HTTP_200_OK,
             )
         except Exception as e:
             return api_response(
-                message="Failed to retrieve user list",
+                message=USER_RETRIEVE_FAILED,
                 error=str(e),
                 status_code=status.HTTP_400_BAD_REQUEST,
             )

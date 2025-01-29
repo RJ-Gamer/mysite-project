@@ -3,8 +3,8 @@ POST http://localhost:8000/api/v1/auth/login/
 Content-Type: application/json
 
 {
-  "email": "admin@yopmail.com",
-  "password": "dell@123"
+  "email": "test@example.com",
+  "password": "Test@123"
 }
 
 ### Refresh Token ###   
@@ -23,7 +23,6 @@ Content-Type: application/json
     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczOTM0MTUzMywiaWF0IjoxNzM4MTMxOTMzLCJqdGkiOiIzYjMxNGJkOTEzZjU0NTFhODJkNzY1ZDg4NzE3NzUyMSIsInVzZXJfaWQiOiJkMTE2NzA2Ny01MTJhLTQxM2EtODBjYi04MGQxMzk1NjIxZWIifQ.uG9U69ax7qzyLWzMTgn26mDcwk2cPbKh3O1gRaWuMDg"
 }
 
-
 ### Change Password ###
 POST http://localhost:8000/api/v1/auth/change-password/
 Content-Type: application/json
@@ -33,4 +32,33 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
     "current_password": "dell@123",
     "new_password": "Dell@1234",
     "confirm_password": "Dell@1234"
+}
+
+### Update User Profile ###
+PUT http://localhost:8000/api/v1/auth/profile/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NzQyMTk5LCJpYXQiOjE3MzgxMzczOTksImp0aSI6ImMxNzkxNzlhMmY0MTQ4MTE5ZWY1MmI4ZDQyY2RhMjBhIiwidXNlcl9pZCI6IjE1MjNmYTQ0LWI0NDItNDYzMi04OWJmLWYxOWRmNWMxMjhjMSJ9.o25YDmCkz6S0YD6z-nQd_rxKYvoU69sxYytEAhP9USU
+
+{
+    "first_name": "John",
+    "last_name": "Doe"
+}
+
+### Update User Profile (Partial) ###
+PUT http://localhost:8000/api/v1/auth/profile/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NzQyMTk5LCJpYXQiOjE3MzgxMzczOTksImp0aSI6ImMxNzkxNzlhMmY0MTQ4MTE5ZWY1MmI4ZDQyY2RhMjBhIiwidXNlcl9pZCI6IjE1MjNmYTQ0LWI0NDItNDYzMi04OWJmLWYxOWRmNWMxMjhjMSJ9.o25YDmCkz6S0YD6z-nQd_rxKYvoU69sxYytEAhP9USU
+
+{
+    "first_name": "Johny"
+}
+
+### User Registration ###
+POST http://localhost:8000/api/v1/auth/register/
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test@123",
+  "confirm_password": "Test@123"
 }

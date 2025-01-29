@@ -21,52 +21,24 @@ from utils.constants import (
     LOGOUT_FAILED,
     PASSWORD_CHANGE_SUCCESS,
     PASSWORD_CHANGE_FAILED,
+    REGISTRATION_SUCCESS,
+    REGISTRATION_FAILED,
+    PROFILE_UPDATE_SUCCESS,
+    PROFILE_UPDATE_FAILED,
 )
-from .serializers import ChangePasswordSerializer
+from .serializers import ChangePasswordSerializer, UserRegistrationSerializer, UserUpdateSerializer
 
 User = get_user_model()
 
 
 class LoginView(TokenObtainPairView):
-    """
-    View for user login using JWT tokens.
-
-    Returns:
-        On success:
-        {
-            "message": "Login successful",
-            "status_code": 200,
-            "error": null,
-            "data": {
-                "access": "<access_token>",
-                "refresh": "<refresh_token>"
-            }
-        }
-
-        On failure:
-        {
-            "message": "Login failed",
-            "status_code": 400,
-            "error": "<error_message>",
-            "data": null
-        }
-    """
+    """Handle user login using JWT tokens."""
 
     permission_classes = (AllowAny,)
     versioning_class = None  # Disable versioning for token endpoints
 
     def post(self, request: Any, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle POST request for user login.
-
-        Args:
-            request: The HTTP request object
-            *args: Variable length argument list
-            **kwargs: Arbitrary keyword arguments
-
-        Returns:
-            Response: API response with tokens or error message
-        """
+        """Handle POST request for user login."""
         try:
             response = super().post(request, *args, **kwargs)
             return api_response(
@@ -83,44 +55,13 @@ class LoginView(TokenObtainPairView):
 
 
 class RefreshTokenView(TokenRefreshView):
-    """
-    View for refreshing expired access tokens using refresh token.
-
-    Returns:
-        On success:
-        {
-            "message": "Token refresh successful",
-            "status_code": 200,
-            "error": null,
-            "data": {
-                "access": "<new_access_token>"
-            }
-        }
-
-        On failure:
-        {
-            "message": "Token refresh failed",
-            "status_code": 400,
-            "error": "<error_message>",
-            "data": null
-        }
-    """
+    """Handle token refresh using refresh token."""
 
     permission_classes = (AllowAny,)
     versioning_class = None  # Disable versioning for token endpoints
 
     def post(self, request: Any, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle POST request for token refresh.
-
-        Args:
-            request: The HTTP request object
-            *args: Variable length argument list
-            **kwargs: Arbitrary keyword arguments
-
-        Returns:
-            Response: API response with new access token or error message
-        """
+        """Handle POST request for token refresh."""
         try:
             response = super().post(request, *args, **kwargs)
             return api_response(
@@ -137,42 +78,13 @@ class RefreshTokenView(TokenRefreshView):
 
 
 class LogoutView(TokenBlacklistView):
-    """
-    View for user logout by blacklisting the refresh token.
-
-    Returns:
-        On success:
-        {
-            "message": "Logout successful",
-            "status_code": 200,
-            "error": null,
-            "data": null
-        }
-
-        On failure:
-        {
-            "message": "Logout failed",
-            "status_code": 400,
-            "error": "<error_message>",
-            "data": null
-        }
-    """
+    """Handle user logout by blacklisting the refresh token."""
 
     permission_classes = (AllowAny,)
     versioning_class = None  # Disable versioning for token endpoints
 
     def post(self, request: Any, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle POST request for user logout.
-
-        Args:
-            request: The HTTP request object
-            *args: Variable length argument list
-            **kwargs: Arbitrary keyword arguments
-
-        Returns:
-            Response: API response indicating logout status
-        """
+        """Handle POST request for user logout."""
         try:
             response = super().post(request, *args, **kwargs)
             return api_response(message=LOGOUT_SUCCESS, status_code=status.HTTP_200_OK)
@@ -184,50 +96,54 @@ class LogoutView(TokenBlacklistView):
             )
 
 
-class ChangePasswordView(APIView):
+class UserRegistrationView(APIView):
+    """Handle user registration.
+
+    Validates and creates a new user account with the provided email, password,
+    first name and last name.
     """
-    View for changing the logged-in user's password.
+
+    permission_classes = (AllowAny,)
+    serializer_class = UserRegistrationSerializer
+
+    def post(self, request: Any, *args: Any, **kwargs: Any) -> Response:
+        """Process user registration request.
+
+        Args:
+            request: HTTP request object containing user registration data
+            (email, password, confirm_password, first_name, last_name)
+        """
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return api_response(
+                message=REGISTRATION_SUCCESS,
+                data={
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                },
+                status_code=status.HTTP_201_CREATED,
+            )
+        return api_response(
+            message=REGISTRATION_FAILED,
+            error=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class ChangePasswordView(APIView):
+    """Handle changing the logged-in user's password.
 
     Requires authentication.
     Validates current password and ensures new password meets requirements.
-
-    Returns:
-        On success:
-        {
-            "message": "Password changed successfully",
-            "status_code": 200,
-            "error": null,
-            "data": null
-        }
-
-        On failure:
-        {
-            "message": "Failed to change password",
-            "status_code": 400,
-            "error": {
-                "current_password": ["Current password is incorrect"],
-                "new_password": ["Password must be at least 8 characters long"],
-                "confirm_password": ["Passwords do not match"]
-            },
-            "data": null
-        }
     """
 
     permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
 
     def post(self, request: Any, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle POST request for password change.
-
-        Args:
-            request: The HTTP request object
-            *args: Variable length argument list
-            **kwargs: Arbitrary keyword arguments
-
-        Returns:
-            Response: API response indicating password change status
-        """
+        """Handle POST request for password change."""
         try:
             serializer = self.serializer_class(
                 data=request.data, context={"request": request}
@@ -246,6 +162,45 @@ class ChangePasswordView(APIView):
         except Exception as e:
             return api_response(
                 message=PASSWORD_CHANGE_FAILED,
+                error=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class UserUpdateView(APIView):
+    """Handle updating user profile information."""
+
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserUpdateSerializer
+
+    def put(self, request: Any, *args: Any, **kwargs: Any) -> Response:
+        """Handle PUT request for user profile update."""
+        try:
+            serializer = self.serializer_class(
+                request.user,
+                data=request.data,
+                partial=True,
+                context={"request": request}
+            )
+            if serializer.is_valid():
+                user = serializer.save()
+                return api_response(
+                    message=PROFILE_UPDATE_SUCCESS,
+                    data={
+                        "email": user.email,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                    },
+                    status_code=status.HTTP_200_OK,
+                )
+            return api_response(
+                message=PROFILE_UPDATE_FAILED,
+                error=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            return api_response(
+                message=PROFILE_UPDATE_FAILED,
                 error=str(e),
                 status_code=status.HTTP_400_BAD_REQUEST,
             )

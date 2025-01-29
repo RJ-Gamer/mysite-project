@@ -44,6 +44,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "phonenumber_field",
     "rest_framework_simplejwt",
+    "drf_yasg",
 ]
 
 PROJECT_APPS = [
@@ -167,4 +168,16 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "uid",
     "USER_ID_CLAIM": "user_id",
+}
+
+# Swagger settings
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+        }
+    },
 }

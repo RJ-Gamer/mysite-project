@@ -8,6 +8,11 @@ from utils.constants import (
     USER_RETRIEVE_SUCCESS,
     USER_RETRIEVE_FAILED,
 )
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views import View
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 User = get_user_model()
 
@@ -33,3 +38,30 @@ class UserListView(APIView):
                 error=str(e),
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class CreateSuperUserView(View):
+    def post(self, request):
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        if not username or not email or not password:
+            return JsonResponse({"error": "All fields are required."}, status=400)
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({"error": "Invalid email format."}, status=400)
+
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already exists."}, status=400)
+
+        user = User.objects.create_superuser(
+            username=username, email=email, password=password
+        )
+
+        return JsonResponse(
+            {"message": "Superuser created successfully.", "user_id": user.id},
+            status=201,
+        )
